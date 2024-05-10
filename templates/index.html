@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图片上传</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f2f2f2;
+      }
+      .main {
+        width: 100%;
+        max-width: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .upload-container {
+        position: relative;
+        width: 70%;
+        height: 500px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        border: 2px dashed #aaaaaa;
+        display: flex;
+        margin-top: 50px;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .upload-container input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .upload-preview {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    </style>
+    <script>
+      function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById("preview");
+
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+          };
+
+          reader.readAsDataURL(input.files[0]);
+          document.querySelector(".提示词").style.display = "none";
+        }
+      }
+    </script>
+    <style>
+        .info-container {
+            width: 70%;
+            margin-top: 20px;
+            justify-content: space-between;
+        }
+        .info-item {
+            width: 100%;
+            height: 40px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction:row;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .info-title {
+            margin-left: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333333;
+        }
+        .info-content {
+            margin-left: 20px;
+            font-size: 16px;
+            color: #666666;
+        }
+        .info-content input {
+            width: 500px;
+            height: 16px;
+            border: 1px solid #aaaaaa;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 16px;
+            color: #666666;
+        }
+        .识别区域 {
+            /*靠最右侧*/
+            margin-left: auto;
+            margin-right: 20px;
+            font-size: 25px;
+            cursor: pointer;
+        }
+    </style>
+    <style>
+        .upload-info {
+            width: 100px;
+            height: 40px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            /*始终位于浏览器的右侧中间*/
+            position: fixed;
+            /*位置在浏览器右侧30%width，高度50%*/
+            right: 15%;
+            top: 50%;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+        <div class="upload-container">
+            <input
+              type="file"
+              id="fileInput"
+              accept="image/*"
+              onchange="previewImage(event)"
+            />
+            <h1 class="提示词">点击上传，当前仅支持pdf</h1>
+            <img id="preview" class="upload-preview" src="" alt="" />
+          </div>
+          <div class="info-container">
+            <div class="info-item">
+                <div class="info-title">发票类型</div>
+                <div class="info-content">
+                    <input type="text" id="type" />
+                </div>
+                <div class="识别区域">
+                    👁
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-title">开票日期</div>
+                <div class="info-content">
+                    <input type="text" id="type" />
+                </div>
+                <div class="识别区域">
+                    👁
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-title">名称</div>
+                <div class="info-content">
+                    <input type="text" id="type" />
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-title">纳税人识别号</div>
+                <div class="info-content">
+                    <input type="text" id="type" />
+                </div>
+            </div>
+          </div>
+    </div>
+    <button class="upload-info">上传</button>
+
+  </body>
+</html>
