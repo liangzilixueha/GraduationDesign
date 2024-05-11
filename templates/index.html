@@ -53,6 +53,12 @@
       }
     </style>
     <script>
+      var data = [
+        ["购买方名称", 0.17620000000000002,0.2145,0.0934,0.0305],
+        ["销售方名称", 0.1754,0.7513,0.18030000000000002,0.0254],
+        ["发票类型", 0.32049999999999995,0.0508,0.3615,0.06849999999999999],
+        ["开票日期", 0.7737999999999999,0.1294,0.1115,0.0292],
+      ];
       function previewImage(event) {
         const input = event.target;
         const preview = document.getElementById("preview");
@@ -125,35 +131,24 @@
             });
         });
       }
-      function 裁剪() {
-        const preview = document.getElementById("preview");
-        const formData = new FormData();
-        const 坐标 = {
-          x: 0.073,
-          y: 0.2107,
-          dx: 0.49670000000000003,
-          dy: 0.1574,
-        };
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const x = preview.width * 坐标.x;
-        const y = preview.height * 坐标.y;
-        const w = preview.width * (坐标.x + 坐标.dx);
-        const h = preview.height * (坐标.y + 坐标.dy);
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(preview, x, y, w, h, 0, 0, w, h);
-        //重绘制
-        preview.src = canvas.toDataURL();
-      }
-      function 获取裁剪结果(x,y,dx,dy){
+      function 获取裁剪结果(element) {
+        //遍历data，找到对应的坐标
+        var x, y, dx, dy;
+        data.forEach((item) => {
+          if (item[0] == element) {
+            x = item[1];
+            y = item[2];
+            dx = item[3];
+            dy = item[4];
+          }
+        });
         const preview = document.getElementById("preview");
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const xx = preview.width * x;
         const yy = preview.height * y;
-        const w = preview.width * (x + dx);
-        const h = preview.height * (y + dy);
+        const w = preview.width * dx;
+        const h = preview.height * dy;
         canvas.width = w;
         canvas.height = h;
         ctx.drawImage(preview, xx, yy, w, h, 0, 0, w, h);
@@ -169,25 +164,25 @@
           },
         });
       }
+      function 修改区域(element) {
+
+      }
       function 初始化() {
         //找到info-container
         const infoContainer = document.querySelector(".info-container");
-        var data = [
-          ["购买方名称", 0, 0, 0.5, 0.5],
-          ["销售方名称", 0, 0, 0.5, 0.5],
-          ["发票类型", 0, 0, 0.5, 0.5],
-          ["开票日期", 0, 0, 0.5, 0.5],
-        ];
         var item = data.forEach((item) => {
           infoContainer.innerHTML += `<div class="info-item">
             <div class="info-title">${item[0]}</div>
             <div class="info-content">
               <input type="text" id="type" />
             </div>
-            <div class="识别区域" x="${item[1]}" y="${item[2]}" dx="${item[3]}" dy="${item[4]}" onclick="获取裁剪结果(${item[1]}, ${item[2]}, ${item[3]}, ${item[4]})">😀</div>
-            <div class="修改识别区域">✍</div>
-        </div> `;
+            <div class="识别区域" onclick="获取裁剪结果('${item[0]}')">😀</div>
+            <div class="修改识别区域" onclick="修改区域('${item[0]}')">✍</div>
+          </div> `;
         });
+      }
+      function 上传(){
+        
       }
       document.addEventListener("DOMContentLoaded", 初始化);
     </script>
@@ -286,10 +281,9 @@
         <!-- 此处将由js添加条目 -->
       </div>
     </div>
-    <div class="按钮">
+    <div class="按钮">  
       <button class="upload-info">上传</button>
       <button class="upload-img" onclick="识别()">识别</button>
-      <button class="cut-img" onclick="裁剪()">裁剪</button>
     </div>
   </body>
 </html>
