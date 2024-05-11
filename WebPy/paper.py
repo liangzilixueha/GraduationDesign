@@ -1,3 +1,4 @@
+import json
 import os
 from flask import Blueprint, jsonify, redirect, render_template, request, send_file, url_for
 from PIL import Image
@@ -43,4 +44,20 @@ def upload_pdf():
     image_path = 'uploads/first_page.png'
     pix.save(image_path)  # 保存图片
     pdf_document.close()  # 关闭PDF
+
     return send_file(image_path, mimetype='image/png')
+
+class 坐标:
+    def __init__(self, x, y, dx, dy):
+        self.x = x
+        self.y = y
+        self.dx = dx
+        self.dy = dy
+        self.rect=[x,y,x+dx,y+dy]
+    def 设置高宽(self,width,heigth):
+        self.x=self.x*width
+        self.y=self.y*heigth
+        self.dx=self.dx*width
+        self.dy=self.dy*heigth
+        self.rect=[self.x,self.y,self.x+self.dx,self.y+self.dy]
+        print(width,heigth)

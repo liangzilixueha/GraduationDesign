@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <title>图片上传</title>
     <style>
       body {
@@ -24,8 +25,9 @@
       }
       .upload-container {
         position: relative;
-        width: 70%;
-        height: 500px;
+        width: auto;
+        min-width: 70%;
+        height: auto;
         background-color: #ffffff;
         border-radius: 10px;
         border: 2px dashed #aaaaaa;
@@ -75,19 +77,26 @@
       }
       function 识别() {
         // 获取preview，构建formData
-        const preview = document.getElementById("preview");
-        const formData = new FormData();
-        const 坐标={x:0.3164,y:0.04190000000000001,dx:0.464,dy:0.108}
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const x = preview.width * 坐标.x;
-        const y = preview.height * 坐标.y;
-        const w = preview.width * (坐标.x+坐标.dx);
-        const h = preview.height * (坐标.y+坐标.dy);
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(preview, x, y, w, h, 0, 0, w, h);
-
+        var preview = document.getElementById("preview");
+        var formData = new FormData();
+        var 坐标 = {
+          x: 0.7073999999999999,
+          y: 0.12689999999999999,
+          dx: 0.1754,
+          dy: 0.0292,
+        };
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        var x = preview.width * 坐标.x; // 相对于左上角的偏移量
+        var y = preview.height * 坐标.y; // 相对于左上角的偏移量
+        var width = preview.width * 坐标.dx; // 裁剪区域的宽度
+        var height = preview.height * 坐标.dy; // 裁剪区域的高度
+        // 设置canvas大小
+        canvas.width = width;
+        canvas.height = height;
+        // 绘制图像的裁剪区域
+        ctx.drawImage(preview, x, y, width, height, 0, 0, width, height);
+        preview.src = canvas.toDataURL();
         // 将图片保存至formData
         canvas.toBlob((blob) => {
           formData.append("image", blob, "cropped_image.png");
@@ -116,6 +125,71 @@
             });
         });
       }
+      function 裁剪() {
+        const preview = document.getElementById("preview");
+        const formData = new FormData();
+        const 坐标 = {
+          x: 0.073,
+          y: 0.2107,
+          dx: 0.49670000000000003,
+          dy: 0.1574,
+        };
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const x = preview.width * 坐标.x;
+        const y = preview.height * 坐标.y;
+        const w = preview.width * (坐标.x + 坐标.dx);
+        const h = preview.height * (坐标.y + 坐标.dy);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(preview, x, y, w, h, 0, 0, w, h);
+        //重绘制
+        preview.src = canvas.toDataURL();
+      }
+      function 获取裁剪结果(x,y,dx,dy){
+        const preview = document.getElementById("preview");
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const xx = preview.width * x;
+        const yy = preview.height * y;
+        const w = preview.width * (x + dx);
+        const h = preview.height * (y + dy);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(preview, xx, yy, w, h, 0, 0, w, h);
+        //使用sweetAlert展示裁剪结果,img自适应大小
+        swal({
+          title: "识别区域",
+          content: {
+            element: "img",
+            attributes: {
+              src: canvas.toDataURL(),
+              style: "width:100%;height:auto",
+            },
+          },
+        });
+      }
+      function 初始化() {
+        //找到info-container
+        const infoContainer = document.querySelector(".info-container");
+        var data = [
+          ["购买方名称", 0, 0, 0.5, 0.5],
+          ["销售方名称", 0, 0, 0.5, 0.5],
+          ["发票类型", 0, 0, 0.5, 0.5],
+          ["开票日期", 0, 0, 0.5, 0.5],
+        ];
+        var item = data.forEach((item) => {
+          infoContainer.innerHTML += `<div class="info-item">
+            <div class="info-title">${item[0]}</div>
+            <div class="info-content">
+              <input type="text" id="type" />
+            </div>
+            <div class="识别区域" x="${item[1]}" y="${item[2]}" dx="${item[3]}" dy="${item[4]}" onclick="获取裁剪结果(${item[1]}, ${item[2]}, ${item[3]}, ${item[4]})">😀</div>
+            <div class="修改识别区域">✍</div>
+        </div> `;
+        });
+      }
+      document.addEventListener("DOMContentLoaded", 初始化);
     </script>
     <style>
       .info-container {
@@ -125,7 +199,7 @@
       }
       .info-item {
         width: 100%;
-        height: 40px;
+        height: 60px;
         background-color: #ffffff;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -161,6 +235,12 @@
         font-size: 25px;
         cursor: pointer;
       }
+      .修改识别区域 {
+        /*靠最右侧*/
+        margin-right: 20px;
+        font-size: 25px;
+        cursor: pointer;
+      }
     </style>
     <style>
       .按钮 button {
@@ -183,6 +263,11 @@
         right: 15%;
         top: 45%;
       }
+      .按钮 .cut-img {
+        position: fixed;
+        right: 15%;
+        top: 55%;
+      }
     </style>
   </head>
   <body>
@@ -198,37 +283,13 @@
         <img id="preview" class="upload-preview" src="" alt="" />
       </div>
       <div class="info-container">
-        <div class="info-item">
-          <div class="info-title">发票类型</div>
-          <div class="info-content">
-            <input type="text" id="type" />
-          </div>
-          <div class="识别区域">👁</div>
-        </div>
-        <div class="info-item">
-          <div class="info-title">开票日期</div>
-          <div class="info-content">
-            <input type="text" id="type" />
-          </div>
-          <div class="识别区域">👁</div>
-        </div>
-        <div class="info-item">
-          <div class="info-title">名称</div>
-          <div class="info-content">
-            <input type="text" id="type" />
-          </div>
-        </div>
-        <div class="info-item">
-          <div class="info-title">纳税人识别号</div>
-          <div class="info-content">
-            <input type="text" id="type" />
-          </div>
-        </div>
+        <!-- 此处将由js添加条目 -->
       </div>
     </div>
     <div class="按钮">
       <button class="upload-info">上传</button>
       <button class="upload-img" onclick="识别()">识别</button>
+      <button class="cut-img" onclick="裁剪()">裁剪</button>
     </div>
   </body>
 </html>

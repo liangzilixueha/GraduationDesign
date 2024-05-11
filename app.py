@@ -8,7 +8,7 @@ app.register_blueprint(paper)
 @app.route('/')
 def index():
     # 默认打开paper界面
-    return render_template('teleport/index.html')
+    return render_template('index.html')
    
 if __name__ == '__main__':
     app.run(debug=True)
