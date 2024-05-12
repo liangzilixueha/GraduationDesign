@@ -21,3 +21,8 @@ sudo apt-get upgrade
 sudo apt-get install tesseract-ocr # OCR
 sudo apt-get install tesseract-ocr-chi-sim # 中文识别
 pip install -r requirements.txt
+
+请再手动创建一个文件夹，名字为“output”
+
+python app.py
+```

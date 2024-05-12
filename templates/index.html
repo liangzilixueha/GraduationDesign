@@ -5,59 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <title>图片上传</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        min-height: 100vh;
-        margin: 0;
-        background-color: #f2f2f2;
-      }
-      .main {
-        width: 100%;
-        max-width: 70%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-      }
-      .upload-container {
-        position: relative;
-        width: auto;
-        min-width: 70%;
-        height: auto;
-        background-color: #ffffff;
-        border-radius: 10px;
-        border: 2px dashed #aaaaaa;
-        display: flex;
-        margin-top: 50px;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        overflow: hidden;
-      }
-      .upload-container input[type="file"] {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        cursor: pointer;
-      }
-      .upload-preview {
-        max-width: 100%;
-        max-height: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="/static/css/upload.css" />
+    <link rel="stylesheet" href="/static/css/item.css" />
+    <link rel="stylesheet" href="/static/css/button.css" />
+    <link rel="stylesheet" href="/static/css/cut.css" />
     <script>
       var data = [
-        ["购买方名称", 0.17620000000000002, 0.2145, 0.0934, 0.0305,'未识别'],
-        ["销售方名称", 0.1754, 0.7513, 0.18030000000000002, 0.0254,'未识别'],
-        ["发票类型", 0.32049999999999995, 0.0508, 0.3615, 0.06849999999999999,'未识别'],
-        ["开票日期", 0.7737999999999999, 0.1294, 0.1115, 0.0292,'未识别'],
+        ["购买方名称", 0.17620000000000002, 0.2145, 0.0934, 0.0305, "未识别"],
+        ["销售方名称", 0.1754, 0.7513, 0.18030000000000002, 0.0254, "未识别"],
+        [
+          "发票类型",
+          0.32049999999999995,
+          0.0508,
+          0.3615,
+          0.06849999999999999,
+          "未识别",
+        ],
+        ["开票日期", 0.7737999999999999, 0.1294, 0.1115, 0.0292, "未识别"],
       ];
       function previewImage(event) {
         const input = event.target;
@@ -87,23 +51,22 @@
         filename = filename.split("\\").pop();
         data.forEach((item) => {
           fetch("/ocr", {
-          method: "POST",
-          body: JSON.stringify({
-            filename:filename,
-            x:item[1],
-            y:item[2],
-            dx:item[3],
-            dy:item[4],
-          }),
-        })
-          .then((response) => response.text())
-          .then((data) => {
-            //在upload-container中找到
-            item[5] = data;
-            初始化();
-          });
+            method: "POST",
+            body: JSON.stringify({
+              filename: filename,
+              x: item[1],
+              y: item[2],
+              dx: item[3],
+              dy: item[4],
+            }),
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              //在upload-container中找到
+              item[5] = data;
+              初始化();
+            });
         });
-
       }
       function 获取裁剪结果(element) {
         //遍历data，找到对应的坐标
@@ -138,7 +101,74 @@
           },
         });
       }
-      function 修改区域(element) {}
+      function 修改区域(element) {
+        // 获取图像预览和区域元素
+        var img = document.getElementById("preview");
+        var cutImg = document.querySelector(".cut-img");
+
+        // 显示图像预览区域
+        cutImg.style.display = "flex";
+        // 设置图像预览区域的图像为当前图像
+        cutImg.querySelector("img").src = img.src;
+
+        //点击除了图像外的地方，隐藏图像预览区域
+        cutImg.onclick = function (e) {
+          if (e.target == cutImg) {
+            cutImg.style.display = "none";
+          }
+        };
+
+        //设置img左上角为0,0,右下角为1,1,获取鼠标按下时的百分比坐标和鼠标抬起时的百分比坐标
+        var x1, y1, x2, y2;
+        cutImg.onmousedown = function (e) {
+          x1 = e.offsetX / img.width;
+          y1 = e.offsetY / img.height;
+        };
+        cutImg.onmouseup = function (e) {
+          x2 = e.offsetX / img.width;
+          y2 = e.offsetY / img.height;
+          //如果鼠标抬起时的坐标小于按下时的坐标，交换两者的值
+          if (x1 > x2) {
+            [x1, x2] = [x2, x1];
+          }
+          if (y1 > y2) {
+            [y1, y2] = [y2, y1];
+          }
+          if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1) {
+            return;
+          }
+          const preview = document.getElementById("preview");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const xx = preview.width * x1;
+          const yy = preview.height * y1;
+          const w = preview.width * (x2 - x1);
+          const h = preview.height * (y2 - y1);
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(preview, xx, yy, w, h, 0, 0, w, h);
+          //使用sweetAlert展示裁剪结果,img自适应大小
+          swal({
+            title: "裁剪区域如下",
+            content: {
+              element: "img",
+              attributes: {
+                src: canvas.toDataURL(),
+                style: "width:100%;height:auto",
+              },
+            },
+          });
+          //遍历data，修改对应的坐标
+          data.forEach((item) => {
+            if (item[0] == element) {
+              item[1] = x1;
+              item[2] = y1;
+              item[3] = x2 - x1;
+              item[4] = y2 - y1;
+            }
+          });
+        };
+      }
       function 初始化() {
         //找到info-container
         const infoContainer = document.querySelector(".info-container");
@@ -149,93 +179,43 @@
             <div class="info-content">
               <input type="text" id="type" value="${item[5]}"/>
             </div>
-            <div class="识别区域" onclick="获取裁剪结果('${item[0]}')">😀</div>
+            <div class="识别区域" onclick="获取裁剪结果('${item[0]}')">👀</div>
             <div class="修改识别区域" onclick="修改区域('${item[0]}')">✍</div>
+            <div class="删除" onclick="删除('${item[0]}')">🔥</div>
           </div> `;
         });
       }
+      function 加一条() {
+        //swlt弹窗，输入框，询问用户要添加的条目名称
+        swal("请输入要添加的条目名称:", {
+          content: "input",
+        }).then((value) => {
+          //如果用户输入了内容，将内容添加到data中
+          if (value) {
+            data.push([value, 0, 0, 0.5, 0.5, "未识别"]);
+            初始化();
+          }
+        });
+      }
+      function 删除(element) {
+        //遍历data，找到对应的元素，删除
+        data.forEach((item, index) => {
+          if (item[0] == element) {
+            data.splice(index, 1);
+          }
+        });
+        初始化();
+      }
+      function 保存至数据库() {
+        //todo
+      }
       document.addEventListener("DOMContentLoaded", 初始化);
     </script>
-    <style>
-      .info-container {
-        width: 70%;
-        margin-top: 20px;
-        justify-content: space-between;
-      }
-      .info-item {
-        width: 100%;
-        height: 60px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-top: 5px;
-      }
-      .info-title {
-        margin-left: 20px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #333333;
-      }
-      .info-content {
-        margin-left: 20px;
-        font-size: 16px;
-        color: #666666;
-      }
-      .info-content input {
-        width: 500px;
-        height: 16px;
-        border: 1px solid #aaaaaa;
-        border-radius: 5px;
-        padding: 5px;
-        font-size: 16px;
-        color: #666666;
-      }
-      .识别区域 {
-        /*靠最右侧*/
-        margin-left: auto;
-        margin-right: 20px;
-        font-size: 25px;
-        cursor: pointer;
-      }
-      .修改识别区域 {
-        /*靠最右侧*/
-        margin-right: 20px;
-        font-size: 25px;
-        cursor: pointer;
-      }
-    </style>
-    <style>
-      .按钮 button {
-        width: 100px;
-        height: 40px;
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        /*始终位于浏览器的右侧中间*/
-      }
-      .按钮 .upload-info {
-        position: fixed;
-        right: 15%;
-        top: 50%;
-      }
-      .按钮 .upload-img {
-        position: fixed;
-        right: 15%;
-        top: 45%;
-      }
-      .按钮 .cut-img {
-        position: fixed;
-        right: 15%;
-        top: 55%;
-      }
-    </style>
   </head>
   <body>
+    <div class="cut-img">
+      <img src="" alt="" draggable="false" />
+    </div>
     <div class="main">
       <div class="upload-container">
         <input
@@ -247,13 +227,16 @@
         <h1 class="提示词">点击上传，当前仅支持pdf</h1>
         <img id="preview" class="upload-preview" src="" alt="" />
       </div>
+      <div class="add-item" onclick="加一条()">
+        <h2>加一条</h2>
+      </div>
       <div class="info-container">
         <!-- 此处将由js添加条目 -->
       </div>
     </div>
     <div class="按钮">
-      <button class="upload-info">保存至数据库</button>
+      <button class="upload-info" onclick="保存至数据库()">保存至数据库</button>
       <button class="upload-img" onclick="识别()">识别</button>
-    </div>
+    </div>  
   </body>
 </html>

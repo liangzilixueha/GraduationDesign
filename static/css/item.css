@@ -1,0 +1,76 @@
+/*这是添加条目以及条目内容的css*/
+.add-item {
+  width: 70%;
+  height: 40px;
+  background-color: #4caf50;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+/*点击颜色变深*/
+.add-item:active {
+  background-color: #006803;
+}
+.add-item h2 {
+  font-size: 20px;
+  color: white;
+  margin: auto;
+}
+.info-container {
+  width: 70%;
+  margin-top: 20px;
+  justify-content: space-between;
+}
+.info-item {
+  width: 100%;
+  height: 60px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 5px;
+}
+.info-title {
+  margin-left: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333333;
+}
+.info-content {
+  margin-left: 20px;
+  font-size: 16px;
+  color: #666666;
+}
+.info-content input {
+  width: 500px;
+  height: 16px;
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 16px;
+  color: #666666;
+}
+.识别区域 {
+  /*靠最右侧*/
+  margin-left: auto;
+  margin-right: 20px;
+  font-size: 25px;
+  cursor: pointer;
+}
+.修改识别区域 {
+  /*靠最右侧*/
+  margin-right: 20px;
+  font-size: 25px;
+  cursor: pointer;
+}
+.删除{
+  margin-right: 20px;
+  font-size: 25px;
+  cursor: pointer;
+}

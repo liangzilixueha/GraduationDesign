@@ -1,0 +1,21 @@
+/*这是网页右侧的按钮css*/
+.按钮 button {
+  width: 100px;
+  height: 40px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  /*始终位于浏览器的右侧中间*/
+}
+.按钮 .upload-info {
+  position: fixed;
+  right: 15%;
+  top: 50%;
+}
+.按钮 .upload-img {
+  position: fixed;
+  right: 15%;
+  top: 45%;
+}
