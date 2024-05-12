@@ -54,10 +54,10 @@
     </style>
     <script>
       var data = [
-        ["购买方名称", 0.17620000000000002,0.2145,0.0934,0.0305],
-        ["销售方名称", 0.1754,0.7513,0.18030000000000002,0.0254],
-        ["发票类型", 0.32049999999999995,0.0508,0.3615,0.06849999999999999],
-        ["开票日期", 0.7737999999999999,0.1294,0.1115,0.0292],
+        ["购买方名称", 0.17620000000000002, 0.2145, 0.0934, 0.0305,'未识别'],
+        ["销售方名称", 0.1754, 0.7513, 0.18030000000000002, 0.0254,'未识别'],
+        ["发票类型", 0.32049999999999995, 0.0508, 0.3615, 0.06849999999999999,'未识别'],
+        ["开票日期", 0.7737999999999999, 0.1294, 0.1115, 0.0292,'未识别'],
       ];
       function previewImage(event) {
         const input = event.target;
@@ -82,54 +82,28 @@
         }
       }
       function 识别() {
-        // 获取preview，构建formData
-        var preview = document.getElementById("preview");
-        var formData = new FormData();
-        var 坐标 = {
-          x: 0.7073999999999999,
-          y: 0.12689999999999999,
-          dx: 0.1754,
-          dy: 0.0292,
-        };
-        var canvas = document.createElement("canvas");
-        var ctx = canvas.getContext("2d");
-        var x = preview.width * 坐标.x; // 相对于左上角的偏移量
-        var y = preview.height * 坐标.y; // 相对于左上角的偏移量
-        var width = preview.width * 坐标.dx; // 裁剪区域的宽度
-        var height = preview.height * 坐标.dy; // 裁剪区域的高度
-        // 设置canvas大小
-        canvas.width = width;
-        canvas.height = height;
-        // 绘制图像的裁剪区域
-        ctx.drawImage(preview, x, y, width, height, 0, 0, width, height);
-        preview.src = canvas.toDataURL();
-        // 将图片保存至formData
-        canvas.toBlob((blob) => {
-          formData.append("image", blob, "cropped_image.png");
-
-          // 使用fetch发送请求
-          fetch("/upload", {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.text();
-            })
-            .then((data) => {
-              // 处理识别结果
-              console.log(data);
-            })
-            .catch((error) => {
-              // 处理错误
-              console.error(
-                "There has been a problem with your fetch operation:",
-                error
-              );
-            });
+        //当你上传文件后，点击上传，会触发这个函数
+        var filename = document.getElementById("fileInput").value;
+        filename = filename.split("\\").pop();
+        data.forEach((item) => {
+          fetch("/ocr", {
+          method: "POST",
+          body: JSON.stringify({
+            filename:filename,
+            x:item[1],
+            y:item[2],
+            dx:item[3],
+            dy:item[4],
+          }),
+        })
+          .then((response) => response.text())
+          .then((data) => {
+            //在upload-container中找到
+            item[5] = data;
+            初始化();
+          });
         });
+
       }
       function 获取裁剪结果(element) {
         //遍历data，找到对应的坐标
@@ -164,26 +138,23 @@
           },
         });
       }
-      function 修改区域(element) {
-
-      }
+      function 修改区域(element) {}
       function 初始化() {
         //找到info-container
         const infoContainer = document.querySelector(".info-container");
+        infoContainer.innerHTML = "";
         var item = data.forEach((item) => {
           infoContainer.innerHTML += `<div class="info-item">
             <div class="info-title">${item[0]}</div>
             <div class="info-content">
-              <input type="text" id="type" />
+              <input type="text" id="type" value="${item[5]}"/>
             </div>
             <div class="识别区域" onclick="获取裁剪结果('${item[0]}')">😀</div>
             <div class="修改识别区域" onclick="修改区域('${item[0]}')">✍</div>
           </div> `;
         });
       }
-      function 上传(){
-        
-      }
+      function 上传() {}
       document.addEventListener("DOMContentLoaded", 初始化);
     </script>
     <style>
@@ -281,7 +252,7 @@
         <!-- 此处将由js添加条目 -->
       </div>
     </div>
-    <div class="按钮">  
+    <div class="按钮">
       <button class="upload-info">上传</button>
       <button class="upload-img" onclick="识别()">识别</button>
     </div>

@@ -47,6 +47,25 @@ def upload_pdf():
 
     return send_file(image_path, mimetype='image/png')
 
+@paper.route('/ocr', methods=['POST'])
+def get_pdf_text():
+    #获取前端body中的json数据
+    data = request.get_data()
+    data = json.loads(data)
+    print(data)
+    #识别pdf文件中的文字
+    pdf_document = pymupdf.open('./uploads/' + data['filename'])
+    text = "" 
+    for page in pdf_document:
+        width=page.mediabox_size.x
+        height=page.mediabox_size.y
+        text += page.get_text("text", clip=
+                              [data['x']*width,
+                                 data['y']*height,
+                                 (data['dx']+data['x'])*width,
+                                 (data['dy']+data['y'])*height])
+    return text
+
 class 坐标:
     def __init__(self, x, y, dx, dy):
         self.x = x
