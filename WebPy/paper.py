@@ -65,18 +65,3 @@ def get_pdf_text():
                                  (data['dx']+data['x'])*width,
                                  (data['dy']+data['y'])*height])
     return text
-
-class 坐标:
-    def __init__(self, x, y, dx, dy):
-        self.x = x
-        self.y = y
-        self.dx = dx
-        self.dy = dy
-        self.rect=[x,y,x+dx,y+dy]
-    def 设置高宽(self,width,heigth):
-        self.x=self.x*width
-        self.y=self.y*heigth
-        self.dx=self.dx*width
-        self.dy=self.dy*heigth
-        self.rect=[self.x,self.y,self.x+self.dx,self.y+self.dy]
-        print(width,heigth)
