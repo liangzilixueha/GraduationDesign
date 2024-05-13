@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库界面</title>
+    <script>
+        fetch("/db/get_all", {
+            method: "GET",
+        }).then((response) => response.json())
+        .then((data) => {
+            //在body中创建一个table，加入data的数据
+            const table = document.createElement("table");
+            document.body.appendChild(table);
+            data.forEach((item) => {
+                const tr = document.createElement("tr");
+                table.appendChild(tr);
+                item.forEach((cell) => {
+                    const td = document.createElement("td");
+                    td.innerText = cell;
+                    tr.appendChild(td);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

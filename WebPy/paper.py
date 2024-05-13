@@ -1,9 +1,12 @@
 import json
 import os
+import sqlite3
 from flask import Blueprint, jsonify, redirect, render_template, request, send_file, url_for
 from PIL import Image
 import pytesseract
 import pymupdf
+
+from WebPy.data import DataBase
 
 paper=Blueprint('paper',__name__)
 
@@ -65,3 +68,54 @@ def get_pdf_text():
                                  (data['dx']+data['x'])*width,
                                  (data['dy']+data['y'])*height])
     return text
+
+@paper.route('/save', methods=['POST'])
+def save():
+    #接受前端传来的json数据
+    data = request.get_data()
+    #输出文件名
+    json_data = json.loads(data.decode('utf-8'))
+    print(json_data['filename'])
+    json_data['filename'] = json_data['filename'].split('.')[0]
+    #输出文件内容
+    maindata=json_data['data']
+    db=DataBase(json_data['filename'])
+    t=[]
+    for key in maindata:
+        j={
+        "name":key[0],
+        "x":key[1],
+        "y":key[2],
+        "dx":key[3],
+        "dy":key[4],
+        "ocr":key[5]
+        }
+        t.append(j)
+    #把t变成json格式
+    t=json.dumps(t)
+    db.insert(json_data['filename'],t)
+    db.close()
+    return 'success',200
+
+@paper.route('/db/get_all', methods=['GET'])
+def get_all():
+    #获取/db/get_all后?的table_name
+    table_name = request.args.get('table_name')
+    if(table_name is None):
+        db = sqlite3.connect('data.db')
+        cursor = db.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        db.commit()
+        tables = cursor.fetchall()
+        db.close()
+        return jsonify(tables)
+    db=DataBase(table_name)
+    data=db.select()
+    json=jsonify(data)
+    print(json)
+    db.close()
+    return json
+
+@paper.route('/db', methods=['GET'])
+def db():
+    return render_template('database.html')

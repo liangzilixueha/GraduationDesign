@@ -207,7 +207,27 @@
         初始化();
       }
       function 保存至数据库() {
-        //todo
+        var filename = document.getElementById("fileInput").value.split("\\").pop();
+        //提示是否保存至数据库
+        swal({
+          title: "是否保存"+filename+"至数据库?",
+          icon: "warning",
+          buttons: {
+            cancel: "取消",
+            confirm: "确定",
+          },
+        })
+        .then((message) => {
+          if(message){
+            fetch("/save", {
+              method: "POST",
+              body: JSON.stringify({
+                filename: filename,
+                data: data,
+              }),
+            })
+          }
+        });
       }
       document.addEventListener("DOMContentLoaded", 初始化);
     </script>
