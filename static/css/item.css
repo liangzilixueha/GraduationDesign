@@ -20,6 +20,28 @@
   color: white;
   margin: auto;
 }
+.config{
+  width: 70%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+.config div{
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 40px;
+  background-color: #7683ff;
+  font-size: 20px;
+  color: white;
+}
+.config div:active{
+  background-color: #3f51b5;
+}
 .info-container {
   width: 70%;
   margin-top: 20px;

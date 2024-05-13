@@ -5,26 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据库界面</title>
     <script>
-        fetch("/db/get_all", {
-            method: "GET",
-        }).then((response) => response.json())
-        .then((data) => {
-            //在body中创建一个table，加入data的数据
-            const table = document.createElement("table");
-            document.body.appendChild(table);
-            data.forEach((item) => {
-                const tr = document.createElement("tr");
-                table.appendChild(tr);
-                item.forEach((cell) => {
-                    const td = document.createElement("td");
-                    td.innerText = cell;
-                    tr.appendChild(td);
+        function init() {
+            //向/db/get_all请求数据，然后在body中新建一个下拉框，让用户选择
+            fetch("/db/get_all")
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById("table");
+                    data.forEach(item => {
+                        const option = document.createElement("option");
+                        option.value = item;
+                        option.innerText = item;
+                        table.appendChild(option);
+                    });
                 });
-            });
-        });
+        }
+        function 条目改变() {
+            //输出选中的条目
+            const table = document.getElementById("table").value;
+            console.log(table);
+            //向/db/get_data?table_name=table请求数据，然后在tbody中新建一个表格，显示数据
+            fetch(`/db/get_all?table_name=${table}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("tbody");
+                    tbody.innerHTML = "";
+                    data.forEach(item => {
+                        const tr = document.createElement("tr");
+                        item.forEach(value => {
+                            const td = document.createElement("td");
+                            td.innerText = value;
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+        init();
     </script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+        /*好看的select*/
+        select {
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            width: 100%;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    
+    <select name="table" id="table" onchange="条目改变()">
+
+    </select>
+    <!--生成头为filename，x,y,dx,dy,ocr的表格-->
+    <table id="data">
+        <thead>
+            <tr>
+                <th>文件名</th>
+                <th>条目</th>
+                <th>x</th>
+                <th>y</th>
+                <th>dx</th>
+                <th>dy</th>
+                <th>ocr</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--这里是数据-->
+        </tbody>
+    </table>
 </body>
 </html>

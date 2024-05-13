@@ -10,19 +10,7 @@
     <link rel="stylesheet" href="/static/css/button.css" />
     <link rel="stylesheet" href="/static/css/cut.css" />
     <script>
-      var data = [
-        ["购买方名称", 0.17620000000000002, 0.2145, 0.0934, 0.0305, "未识别"],
-        ["销售方名称", 0.1754, 0.7513, 0.18030000000000002, 0.0254, "未识别"],
-        [
-          "发票类型",
-          0.32049999999999995,
-          0.0508,
-          0.3615,
-          0.06849999999999999,
-          "未识别",
-        ],
-        ["开票日期", 0.7737999999999999, 0.1294, 0.1115, 0.0292, "未识别"],
-      ];
+      var data = [];
       function previewImage(event) {
         const input = event.target;
         const preview = document.getElementById("preview");
@@ -229,6 +217,38 @@
           }
         });
       }
+      function 保存配置() {
+        //将data转换为json
+        var dataJson = {};
+        data.forEach((item) => {
+          dataJson[item[0]] = item.slice(1, 5);
+        });
+        //下载为data.json
+        var a = document.createElement("a");
+        var blob = new Blob([JSON.stringify(dataJson)], { type: "text/plain" });
+        a.href = URL.createObjectURL(blob);
+        a.download = "data.json";
+        a.click();
+      }
+      function 加载配置(){
+        //让用户在本地选择一个json文件
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+        input.onchange = function (e) {
+          var file = e.target.files[0];
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            var dataJson = JSON.parse(e.target.result);
+            for (var key in dataJson) {
+              data.push([key].concat(dataJson[key], "未识别"));
+            }
+            初始化();
+          };
+          reader.readAsText(file);
+        };
+        input.click();
+      }
       document.addEventListener("DOMContentLoaded", 初始化);
     </script>
   </head>
@@ -249,6 +269,10 @@
       </div>
       <div class="add-item" onclick="加一条()">
         <h2>加一条</h2>
+      </div>
+      <div class="config">
+        <div style="margin-right: 10px;" onclick="保存配置()">保存参数配置</div>
+        <div style="margin-left: 10px;" onclick="加载配置()">加载参数配置</div>
       </div>
       <div class="info-container">
         <!-- 此处将由js添加条目 -->
