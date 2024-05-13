@@ -1,9 +1,12 @@
+import os
 from flask import Flask, render_template
 from WebPy.paper import paper
 
 app = Flask(__name__)
 
 app.register_blueprint(paper)
+if os.path.exists('uploads') == False:
+    os.mkdir('uploads')
 
 @app.route('/')
 def index():
