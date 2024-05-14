@@ -189,12 +189,20 @@
           infoContainer.innerHTML += `<div class="info-item">
             <div class="info-title">${item[0]}</div>
             <div class="info-content">
-              <input type="text" id="type" value="${item[5]}"/>
+              <input type="text" id="type" value="${item[5]}" onchange="修改识别内容(event,'${item[0]}')"/>
             </div>
             <div class="识别区域" onclick="获取裁剪结果('${item[0]}')">👀</div>
             <div class="修改识别区域" onclick="修改区域('${item[0]}')">✍</div>
             <div class="删除" onclick="删除('${item[0]}')">🔥</div>
           </div> `;
+        });
+      }
+      function 修改识别内容(event,id) {
+        //遍历data，找到对应的元素，修改
+        data.forEach((item) => {
+          if (item[0] == id) {
+            item[5] = event.target.value;
+          }
         });
       }
       function 加一条() {
@@ -308,6 +316,6 @@
       <button class="upload-img" onclick="识别()">识别</button>
       <button class="upload-img-low" onclick="识别低()">识别低</button>
       <button class="check-true" onclick="查验真伪()">查验真伪</button>
-    </div>  
+    </div>
   </body>
 </html>
