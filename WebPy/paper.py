@@ -119,3 +119,22 @@ def get_all():
 @paper.route('/db', methods=['GET'])
 def db():
     return render_template('database.html')
+
+#使用纯种的OCR而不是pdf识别
+@paper.route('/ocr-low', methods=['POST'])
+def ocr_low():
+    #获取前端传来的json数据
+    data = request.get_data()
+    #输出文件名
+    json_data = json.loads(data.decode('utf-8'))
+    print(json_data['filename'])
+    x=json_data['x']
+    y=json_data['y']
+    dx=json_data['dx']
+    dy=json_data['dy']
+    #使用OCR在区域内识别文字
+    img=Image.open('./uploads/' + json_data['filename'])
+    width,height=img.size
+    img=img.crop((x*width,y*height,(x+dx)*width,(y+dy)*height))
+    text = pytesseract.image_to_string(image=img,lang='chi_sim')
+    return text

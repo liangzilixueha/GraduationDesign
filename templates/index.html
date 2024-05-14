@@ -57,6 +57,29 @@
             });
         });
       }
+      function 识别低() {
+        //当你上传文件后，点击上传，会触发这个函数
+        var filename = document.getElementById("fileInput").value;
+        filename = filename.split("\\").pop();
+        data.forEach((item) => {
+          fetch("/ocr-low", {
+            method: "POST",
+            body: JSON.stringify({
+              filename: filename,
+              x: item[1],
+              y: item[2],
+              dx: item[3],
+              dy: item[4],
+            }),
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              //在upload-container中找到
+              item[5] = data;
+              初始化();
+            });
+        });
+      }
       function 获取裁剪结果(element) {
         //遍历data，找到对应的坐标
         var x, y, dx, dy;
@@ -282,6 +305,7 @@
     <div class="按钮">
       <button class="upload-info" onclick="保存至数据库()">保存至数据库</button>
       <button class="upload-img" onclick="识别()">识别</button>
+      <button class="upload-img-low" onclick="识别低()">识别低</button>
       <button class="check-true" onclick="查验真伪()">查验真伪</button>
     </div>  
   </body>
