@@ -264,6 +264,7 @@
           var reader = new FileReader();
           reader.onload = function (e) {
             var dataJson = JSON.parse(e.target.result);
+            data = [];
             for (var key in dataJson) {
               data.push([key].concat(dataJson[key], "未识别"));
             }

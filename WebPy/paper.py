@@ -47,7 +47,12 @@ def upload_pdf():
     image_path = 'uploads/first_page.png'
     pix.save(image_path)  # 保存图片
     pdf_document.close()  # 关闭PDF
-
+    #打开图片
+    image = Image.open(image_path)
+    #等比例缩放，除非图片宽度大于1200
+    if image.size[0] > 1100:
+        image = image.resize((1100, int(image.size[1] * 1100 / image.size[0])))
+    image.save(image_path)
     return send_file(image_path, mimetype='image/png')
 
 @paper.route('/ocr', methods=['POST'])
@@ -133,7 +138,7 @@ def ocr_low():
     dx=json_data['dx']
     dy=json_data['dy']
     #使用OCR在区域内识别文字
-    img=Image.open('./uploads/' + json_data['filename'])
+    img=Image.open('./uploads/first_page.png')
     width,height=img.size
     img=img.crop((x*width,y*height,(x+dx)*width,(y+dy)*height))
     text = pytesseract.image_to_string(image=img,lang='chi_sim')
