@@ -100,7 +100,7 @@ def save():
     t=json.dumps(t)
     db.insert(json_data['filename'],t)
     db.close()
-    return '成功',200
+    return 'success',200
 
 @paper.route('/db/get_all', methods=['GET'])
 def get_all():

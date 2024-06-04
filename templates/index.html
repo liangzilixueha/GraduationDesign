@@ -25,12 +25,68 @@
             body: formData,
           })
             .then((response) => response.blob())
-            .then((data) => {
+            .then((mmdata) => {
               //设置图片的src
-              const imageUrl = URL.createObjectURL(data);
+              const imageUrl = URL.createObjectURL(mmdata);
               // 设置图片的src
               preview.src = imageUrl;
               document.querySelector(".提示词").style.display = "none";
+              //识别发票类型
+              var filename = document.getElementById("fileInput").value;
+              filename = filename.split("\\").pop();
+              fetch("/ocr", {
+                method: "POST",
+                body: JSON.stringify({
+                  filename: filename,
+                  x: 0.32545454545454544,
+                  y: 0.05211267605633803,
+                  dx: 0.35545454545454547,
+                  dy: 0.05633802816901408,
+                }),
+              })
+                .then((response) => response.text())
+                .then((mdata) => {
+                  if (mdata.includes("北京") && mdata.includes("增值税")) {
+                    swal({
+                      title: "自动检测",
+                      text: "北京增值税发票",
+                      icon: "info",
+                      timer: 3000, // 设置自动关闭的时间（毫秒）
+                      showConfirmButton: false, // 隐藏确认按钮
+                    });
+                    //读取json/1.json文件
+                    fetch("/static/json/北京增值税电子普通发票.json")
+                      .then((response) => response.json())
+                      .then((res) => {
+                        data = [];
+                        console.log(res);
+                        for (var key in res) {
+                          data.push([key].concat(res[key], "未识别"));
+                        }
+                        初始化();
+                      });
+                  }
+                  if (mdata.includes("上海") && mdata.includes("增值税")) {
+                    swal({
+                      title: "自动检测",
+                      text: "上海增值税发票",
+                      icon: "info",
+                      timer: 3000, // 设置自动关闭的时间（毫秒）
+                      showConfirmButton: false, // 隐藏确认按钮
+                    });
+                    //读取json/1.json文件
+                    fetch("/static/json/上海增值税.json")
+                      .then((response) => response.json())
+                      .then((res) => {
+                        data = [];
+                        console.log(res);
+                        for (var key in res) {
+                          data.push([key].concat(res[key], "未识别"));
+                        }
+                        初始化();
+                      });
+                  }
+                });
             });
         }
       }
@@ -185,7 +241,7 @@
         //找到info-container
         const infoContainer = document.querySelector(".info-container");
         infoContainer.innerHTML = "";
-        var item = data.forEach((item) => {
+        data.forEach((item) => {
           infoContainer.innerHTML += `<div class="info-item">
             <div class="info-title">${item[0]}</div>
             <div class="info-content">
@@ -234,12 +290,22 @@
         //向/db/get_all发送get请求
         fetch("/db/get_all")
           .then((response) => response.json())
-          .then((data) => {
-            var flag=false
-            data.forEach(element => {
-              console.log(element[0], filename.replace(/\.[^/.]+$/, "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ''));
-              if(element[0]==filename.replace(/\.[^/.]+$/, "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')){
-                flag=true;
+          .then((mdata) => {
+            var flag = false;
+            mdata.forEach((element) => {
+              console.log(
+                element[0],
+                filename
+                  .replace(/\.[^/.]+$/, "")
+                  .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "")
+              );
+              if (
+                element[0] ==
+                filename
+                  .replace(/\.[^/.]+$/, "")
+                  .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "")
+              ) {
+                flag = true;
               }
             });
             //如果data中存在filename，弹出提示框，询问用户是否覆盖
