@@ -197,7 +197,7 @@
           </div> `;
         });
       }
-      function 修改识别内容(event,id) {
+      function 修改识别内容(event, id) {
         //遍历data，找到对应的元素，修改
         data.forEach((item) => {
           if (item[0] == id) {
@@ -227,27 +227,63 @@
         初始化();
       }
       function 保存至数据库() {
-        var filename = document.getElementById("fileInput").value.split("\\").pop();
+        var filename = document
+          .getElementById("fileInput")
+          .value.split("\\")
+          .pop();
+        //向/db/get_all发送get请求
+        fetch("/db/get_all")
+          .then((response) => response.json())
+          .then((data) => {
+            var flag=false
+            data.forEach(element => {
+              console.log(element[0], filename.replace(/\.[^/.]+$/, "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ''));
+              if(element[0]==filename.replace(/\.[^/.]+$/, "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')){
+                flag=true;
+              }
+            });
+            //如果data中存在filename，弹出提示框，询问用户是否覆盖
+            if (!flag) {
+              swal({
+                title: "是否保存" + filename + "至数据库?",
+                icon: "warning",
+                buttons: {
+                  cancel: "取消",
+                  confirm: "确定",
+                },
+              }).then((message) => {
+                if (message) {
+                  fetch("/save", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      filename: filename,
+                      data: data,
+                    }),
+                  });
+                }
+              });
+            } else {
+              swal({
+                title: "已经有" + filename + "在数据库中，是否覆盖？",
+                icon: "warning",
+                buttons: {
+                  cancel: "取消",
+                  confirm: "确定",
+                },
+              }).then((message) => {
+                if (message) {
+                  fetch("/save", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      filename: filename,
+                      data: data,
+                    }),
+                  });
+                }
+              });
+            }
+          });
         //提示是否保存至数据库
-        swal({
-          title: "是否保存"+filename+"至数据库?",
-          icon: "warning",
-          buttons: {
-            cancel: "取消",
-            confirm: "确定",
-          },
-        })
-        .then((message) => {
-          if(message){
-            fetch("/save", {
-              method: "POST",
-              body: JSON.stringify({
-                filename: filename,
-                data: data,
-              }),
-            })
-          }
-        });
       }
       function 保存配置() {
         //将data转换为json
@@ -262,7 +298,7 @@
         a.download = "data.json";
         a.click();
       }
-      function 加载配置(){
+      function 加载配置() {
         //让用户在本地选择一个json文件
         var input = document.createElement("input");
         input.type = "file";
@@ -304,8 +340,8 @@
         <h2>加一条</h2>
       </div>
       <div class="config">
-        <div style="margin-right: 10px;" onclick="保存配置()">保存参数配置</div>
-        <div style="margin-left: 10px;" onclick="加载配置()">加载参数配置</div>
+        <div style="margin-right: 10px" onclick="保存配置()">保存参数配置</div>
+        <div style="margin-left: 10px" onclick="加载配置()">加载参数配置</div>
       </div>
       <div class="info-container">
         <!-- 此处将由js添加条目 -->
